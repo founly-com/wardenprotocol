@@ -1,52 +1,30 @@
 import clsx from "clsx";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import type { AddressResponse } from "@wardenprotocol/wardenjs/codegen/warden/warden/v1beta3/query";
-import TotalAssetsChart from "./Chart";
 
 import { Icons } from "@/components/ui/icons-assets";
 import { useSpaceId } from "@/hooks/useSpaceId";
-import { useAssetQueries } from "../assets/hooks";
 import { useCurrency } from "@/hooks/useCurrency";
-import { FIAT_FORMAT } from "@/hooks/useFiatConversion";
+import useFiatConversion from "@/hooks/useFiatConversion";
 import { bigintToFloat } from "@/lib/math";
+import TotalAssetsChart from "./Chart";
+import { Icons as IconsAssets } from "./icons";
+import { useAssetQueries } from "../assets/hooks";
 import { useModalState } from "../modals/state";
-
-type Currency = keyof typeof FIAT_FORMAT;
 
 const DashboardGraph = ({
 	addresses,
 }: {
 	addresses?: (AddressResponse & { keyId: bigint })[];
 }) => {
-	const curr = useCurrency();
-	const currency = curr.currency as Currency;
-	const formatter = FIAT_FORMAT[currency];
+	const { fiatConversion, formatter } = useFiatConversion();
 	const { setData: setModal } = useModalState();
 	const [graphInterval, setGraphInterval] = useState<7 | 30 | 90>(30);
 
 	const { spaceId } = useSpaceId();
 	const { queryBalances, queryPrices } = useAssetQueries(spaceId);
 	const results = queryBalances.flatMap((item) => item.data?.results);
-
-	const fiatConversion = useMemo(() => {
-		if (currency === "usd") {
-			return {
-				name: "usd",
-				value: BigInt(1),
-				decimals: 0,
-			};
-		}
-
-		for (const entry of queryPrices) {
-			if (!entry.data) {
-				continue;
-			}
-
-			if (entry.data.name === currency) {
-				return entry.data;
-			}
-		}
-	}, [queryPrices, currency]);
 
 	const totalBalance = useMemo(() => {
 		const targetDecimals = 2;
@@ -69,7 +47,7 @@ const DashboardGraph = ({
 	}, [results]);
 
 	return (
-		<div className="relative group cursor-pointer bg-card  p-6 pb-0 border-[1px] border-border-secondary rounded-2xl">
+		<div className="relative group cursor-pointer bg-card  p-6 pb-0 border-[1px] border-border-edge rounded-2xl">
 			<div className="flex items-start justify-between mb-1">
 				<div className="font-bold text-[32px] flex items-center gap-3">
 					{formatter.format(
@@ -83,11 +61,12 @@ const DashboardGraph = ({
 							2,
 						),
 					)}
-
-					<Icons.buttonArrow className="group-hover:opacity-100 opacity-0 ease-out duration-300" />
+					<Link to="/assets">
+						<Icons.buttonArrow className="group-hover:opacity-100 opacity-0 ease-out duration-300" />
+					</Link>
 				</div>
 
-				<div className="flex gap-2">
+				{/* <div className="flex gap-2">
 					<div
 						onClick={() => setGraphInterval(7)}
 						className={clsx(
@@ -118,17 +97,27 @@ const DashboardGraph = ({
 					>
 						3M
 					</div>
-				</div>
+				</div> */}
 			</div>
 
 			<div className="text-muted-foreground">In total</div>
 
 			<div className="-mx-6 w-[calc(100%_+_48px)] max-w-none h-[191px] overflow-hidden rounded-lg">
-				<TotalAssetsChart />
+				<TotalAssetsChart
+					balance={bigintToFloat(
+						fiatConversion
+							? (totalBalance *
+									BigInt(10) **
+										BigInt(fiatConversion.decimals)) /
+									fiatConversion.value
+							: BigInt(0),
+						2,
+					)}
+				/>
 			</div>
 
 			<div className="absolute left-6 bottom-6 flex w-[calc(100%_-_48px)] justify-between">
-				<div className="flex items-center gap-3">
+				{/* <div className="flex items-center gap-3">
 					<div className="flex">
 						<img
 							className="w-10 h-10 object-contain"
@@ -149,14 +138,15 @@ const DashboardGraph = ({
 						/>
 					</div>
 					5 assets
-				</div>
+				</div> */}
 				<button
 					onClick={setModal.bind(null, {
-						type: "select-key",
-						params: { addresses, next: "receive" },
+						type: "receive",
+						params: {},
 					})}
-					className="rounded bg-fill-quaternary h-10 px-5 font-semibold  duration-300 ease-out hover:bg-pink-secondary"
+					className="flex items-center gap-2 rounded bg-fill-accent-secondary h-10 px-3 font-semibold  duration-300 ease-out hover:bg-pink-secondary"
 				>
+					<IconsAssets.arrInCircle className="invert dark:invert-0" />
 					Receive
 				</button>
 			</div>

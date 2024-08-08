@@ -45,7 +45,7 @@ export default function Keys({ spaceId }: CurrentSpaceProps) {
 	return (
 		<div className="grid gap-6 grid-cols-[2fr_1fr]">
 			{isEmpty ? (
-				<div className="relative isolate flex flex-col items-center justify-center text-center bg-card  border-[1px] border-border-secondary rounded-2xl">
+				<div className="relative isolate flex flex-col items-center justify-center text-center bg-card  border-[1px] border-border-edge rounded-2xl">
 					<img
 						className="absolute left-0 top-0 z-[-1] w-full h-full object-cover"
 						src="/images/nokeys.png"
@@ -62,7 +62,7 @@ export default function Keys({ spaceId }: CurrentSpaceProps) {
 				<DashboardGraph addresses={addresses} />
 			)}
 
-			<div className="bg-card py-6 px-8 border-[1px] border-border-secondary rounded-2xl">
+			<div className="bg-card py-6 px-8 border-[1px] border-border-edge rounded-2xl">
 				<div className="font-bold text-[32px] text-center mb-4">
 					#{spaceId.toString()} Space
 				</div>
@@ -128,12 +128,12 @@ export default function Keys({ spaceId }: CurrentSpaceProps) {
 				<div className="mb-[22px] mt-1 h-[1px] bg-background" />
 
 				<Link
-					to="/intents"
+					to="/rules"
 					className="py-[10px] flex justify-between items-center gap-3 cursor-pointer"
 				>
 					<div className="flex gap-3 items-center">
 						<Icons.activeIntent stroke="currentColor" />
-						Active Intent
+						Active Rule
 					</div>
 
 					{activeRuleId ? (

@@ -1,20 +1,18 @@
+import clsx from "clsx";
 import AddOwnerModal from "./AddOwner";
 import ApproveModal from "./ApproveActionModal";
 import CreateKeyModal from "./CreateKey";
 import ConnectedModal from "./ConnectedModal";
-import SelectKeyModal from "./SelectKeys";
 import ReceiveAssetsModal from "./ReceiveAssets";
 import SelectAssetModal from "./SelectAsset";
 import SendAssetsModal from "./SendAssets";
 import WalletConnectModal from "./WalletConnect";
 import { useModalState } from "./state";
-import {
+import type {
 	CreateKeyParams,
 	SelectAssetParams,
-	SelectKeyParams,
 	TransferParams,
 } from "./types";
-import clsx from "clsx";
 
 export default function ModalRoot() {
 	const { data, setData } = useModalState();
@@ -26,7 +24,7 @@ export default function ModalRoot() {
 	return (
 		<div
 			className={clsx(
-				"absolute left-0 top-0 w-full h-full flex items-center justify-center min-h-[600px] isolate",
+				"absolute left-0 top-0 w-full h-full flex items-center justify-center min-h-[600px] isolate z-[999]",
 				{ hidden: !data.type },
 			)}
 		>
@@ -34,7 +32,7 @@ export default function ModalRoot() {
 
 			<button
 				onClick={() => setData({ type: undefined, params: undefined })}
-				className="absolute top-8 right-8 opacity-[0.5] hover:opacity-[100%] transition-all"
+				className="absolute top-8 invert dark:invert-0 right-8 opacity-[0.5] hover:opacity-[100%] transition-all"
 			>
 				<img src="/images/button-close.svg" alt="" />
 			</button>
@@ -61,8 +59,6 @@ export default function ModalRoot() {
 				<ConnectedModal />
 			) : !data.params ? (
 				<></>
-			) : data.type === "select-key" ? (
-				<SelectKeyModal {...(data.params as SelectKeyParams)} />
 			) : data.type === "receive" ? (
 				<ReceiveAssetsModal {...(data.params as TransferParams)} />
 			) : data.type === "send" ? (
