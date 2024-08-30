@@ -6,7 +6,9 @@ sidebar_position: 2
 
 ## Overview
 
-This is a step-by-step guide explaining how to use **CLIChain** (`clichain`) – a tool for generating keys and signing messages from the command line.
+This is a step-by-step guide explaining how to fulfill key and signature requests with your Keychain from the command line.
+
+For generating keys and signing messages, you'll use the **CLIChain** (`clichain`) tool.
 
 Learn more:
 
@@ -55,7 +57,7 @@ When a user requests a new key, the Keychain generates a new private key, stores
    wardend q warden key-requests --keychain-id $KEYCHAIN_ID
    ```
 
-   Your key request ID will be returned in the `id` field of the output"
+   Your key request ID will be returned in the `id` field of the output:
 
    ```
    id=1
@@ -112,7 +114,7 @@ When a user requests a new key, the Keychain signs a message with the private ke
    export SIGN_REQUEST_ID=1  # replace with the actual signature request ID
    ``` 
 
-2. Use the CLIChain [`sign`](../implementations/clichain#sign-a-message) command to sign the message with the key generated in the previous step:
+2. Use the CLIChain [`sign`](../implementations/clichain#sign-a-message) command to sign the message with the key generated in Step 3 and export the signature:
    
    ```bash
    export SIGNATURE=$(echo -n $DATA | base64 -d | clichain sign -k /tmp/key -o base64)
