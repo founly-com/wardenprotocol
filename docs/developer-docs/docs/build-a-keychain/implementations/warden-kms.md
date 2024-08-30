@@ -89,9 +89,9 @@ The `SetKeyRequestHandler` processes key requests, specifically for the `ECDSA_S
 
 This process ensures that each key request generates a unique public key derived from the master seed, following BIP44 standards.
 
-### Sign request handler
+### Signature request handler
 
-The `SetSignRequestHandler` manages sign requests by converting key IDs, signing data, and returning the signature.
+The `SetSignRequestHandler` manages signature requests by converting key IDs, signing data, and returning the signature.
 
 ## HTTP server
 

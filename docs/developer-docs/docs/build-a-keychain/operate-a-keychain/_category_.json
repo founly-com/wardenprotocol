@@ -1,11 +1,11 @@
 {
-  "position": 3,
-  "label": "build-an-app",
+  "position": 2,
+  "label": "Operate a Keychain",
   "collapsible": true,
   "collapsed": false,
   "link": {
     "type": "generated-index",
-    "title": "Build an App"
+    "title": "Operate a Keychain"
   },
   "customProps": {}
 }

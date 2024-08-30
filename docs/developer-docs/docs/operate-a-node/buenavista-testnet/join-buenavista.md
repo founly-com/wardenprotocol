@@ -29,7 +29,7 @@ This tutorial explains how to run the Warden binary, `wardend`, and join the **B
   - 32GB of RAM
   - 300GB of disk space
 
-- You'll also need to [install Go](https://golang.org/doc/install).
+- You also need to [install Go](https://golang.org/doc/install).
 
 ## 1. Install
 

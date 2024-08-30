@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Building a Keychain Service - Part 1: Basics
+# Set up a basic Go app
 
 ## Overview
 
@@ -10,9 +10,12 @@ This tutorial will guide you through creating a Keychain service using the Warde
 
 ## Prerequisites
 
-- Go 1.23 or later
+Before you start, complete following prerequisites:
 
-## Setting up the project
+- [Install Go](https://golang.org/doc/install) 1.23 or later.
+- [Run a local chain](/build-an-app/test/run-a-local-chain) and [create a Keychain](../operate-a-keychain/create-a-keychain).
+
+## 1. Set up the project
 
 1. Create a new directory for your project:
 
@@ -33,11 +36,11 @@ This tutorial will guide you through creating a Keychain service using the Warde
    go get github.com/ethereum/go-ethereum/crypto
    ```
 
-## Creating the main application
+## 2. Create the main application
 
 1. Create a new file named `main.go` in your project directory.
 
-2. Add the following code to `main.go`:
+2. Add this code to `main.go`:
 
    ```go
    package main
@@ -61,18 +64,18 @@ This tutorial will guide you through creating a Keychain service using the Warde
        // Create a new Keychain application
        app := keychain.NewApp(keychain.Config{
            Logger:         logger,
-           ChainID:        "warden",
+           ChainID:        "warden", // Replace with your chain ID (typically warden)
            GRPCURL:        "localhost:9090",
            GRPCInsecure:   true,
-           KeychainID:     1, // Replace with your actual Keychain ID
-           Mnemonic:       "your mnemonic phrase here",
+           KeychainID:     1, // Replace with your Keychain ID
+           Mnemonic:       "my mnemonic phrase", // Paste your Keychain Writer's mnemonic
            DerivationPath: "m/44'/118'/0'/0/0",
            GasLimit:       400000,
            BatchInterval:  8 * time.Second,
            BatchSize:      10,
        })
 
-       // Set up handlers for key requests and sign requests
+       // Set up handlers for key and signature requests
        app.SetKeyRequestHandler(handleKeyRequest)
        app.SetSignRequestHandler(handleSignRequest)
 
@@ -88,13 +91,30 @@ This tutorial will guide you through creating a Keychain service using the Warde
        // To be implemented in Part 2
    }
 
-   // handleSignRequest processes incoming sign requests
+   // handleSignRequest processes incoming signature requests
    func handleSignRequest(w keychain.SignResponseWriter, req *keychain.SignRequest) {
        // To be implemented in Part 2
    }
    ```
 
-## Error Handling Structure
+3. Make the following adjustments in the code:
+
+   - `ChainID`: Specify the chain ID you used when [running a node](../operate-a-keychain/create-a-keychain#1-run-a-node).  
+   - `KeychainID`: Specify your Keychain ID obtained when [registering a Keychain](../operate-a-keychain/create-a-keychain#2-register-a-keychain).
+
+   - `Mnemonic`: Paste the mnemonic phrase obtained when [adding a Keychain Writer](../operate-a-keychain/create-a-keychain#3-add-a-keychain-writer).  
+
+
+   :::tip
+   To check your chain and Keychain IDs, you can run these commands and see the `network` and `id` fields in their outputs:
+
+   ```bash
+   wardend status
+   wardend query warden keychains
+   ```
+   :::
+
+## 3. Implement error handling
 
 We'll use the following structure for error handling:
 
@@ -114,7 +134,7 @@ if err := someOperation(); err != nil {
 }
 ```
 
-## Running the App
+## 4. Run the app
 
 To run the app:
 
@@ -127,6 +147,6 @@ To run the app:
 
 You should see output indicating that the app has started and is connecting to the Warden Protocol node.
 
-## Next Steps
+## Next steps
 
-In Part 2 of this tutorial, we'll implement the key and sign request handlers, add detailed error handling, and write tests for our Keychain service.
+In Part 2 of this tutorial, we'll implement the key and signature request handlers, add detailed error handling, and write tests for our Keychain service.

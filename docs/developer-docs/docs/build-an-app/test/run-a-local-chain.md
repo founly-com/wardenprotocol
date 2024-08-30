@@ -10,8 +10,10 @@ This guide explains how to run a local chain for development and testing purpose
 
 ## Prerequisites
 
-- [Go](https://golang.org/dl/) 1.22.5 or later
-- [just](https://just.systems/man/en/chapter_4.html)
+Before you start, complete following prerequisites:
+
+- [Install Go](https://golang.org/doc/install) 1.22.5 or later.
+- Install [just](https://just.systems/man/en/chapter_4.html).
 
 ## 1. Clone the Warden repository
 

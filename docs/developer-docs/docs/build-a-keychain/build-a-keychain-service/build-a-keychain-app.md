@@ -1,14 +1,20 @@
 ---
-sidebar_position: 2
+sidebar_position: 4
 ---
 
-# Building a Keychain Service - Part 2: Advanced
+# Build a Keychain app
 
 ## Overview
 
-In this second part of the tutorial, we'll build upon the basic structure created in Part 1. We'll implement key and sign request handlers, add detailed error handling, and write tests for our Keychain service.
+In this second part of the tutorial, we'll build upon the basic structure created in Part 1. We'll implement key and signature request handlers, add detailed error handling, and write tests for our Keychain service.
 
-## Implementing Key Storage
+## Prerequisites
+
+Before you start, complete following prerequisites:
+
+- [Set up a basic Go app](set-up-a-basic-go-app).
+
+## 1. Implement a key storage
 
 First, let's implement a simple in-memory storage for our keys:
 
@@ -42,7 +48,7 @@ func (s *Store) Get(id uint64) *ecdsa.PrivateKey {
 }
 ```
 
-## Implementing Key Request Handler
+## 2. Implement a key request handler
 
 Now, let's implement the `handleKeyRequest` function:
 
@@ -54,21 +60,21 @@ import (
 
 func handleKeyRequest(w keychain.KeyResponseWriter, req *keychain.KeyRequest) {
     logger := slog.Default()
-    logger.Info("received key request", "id", req.Id, "key_type", req.KeyType)
+    logger.Info("received a key request", "id", req.Id, "key_type", req.KeyType)
 
     if req.KeyType != v1beta2.KeyType_KEY_TYPE_ECDSA_SECP256K1 {
         logger.Error("unsupported key type", "type", req.KeyType)
         if err := w.Reject("unsupported key type"); err != nil {
-            logger.Error("failed to reject key request", "error", err)
+            logger.Error("failed to reject the key request", "error", err)
         }
         return
     }
 
     key, err := crypto.GenerateKey()
     if err != nil {
-        logger.Error("failed to generate key", "error", err)
-        if rejectErr := w.Reject("failed to generate key"); rejectErr != nil {
-            logger.Error("failed to reject key request", "error", rejectErr)
+        logger.Error("failed to generate a key", "error", err)
+        if rejectErr := w.Reject("failed to generate a key"); rejectErr != nil {
+            logger.Error("failed to reject the key request", "error", rejectErr)
         }
         return
     }
@@ -78,26 +84,26 @@ func handleKeyRequest(w keychain.KeyResponseWriter, req *keychain.KeyRequest) {
     pubKey := crypto.CompressPubkey(&key.PublicKey)
 
     if err := w.Fulfil(pubKey); err != nil {
-        logger.Error("failed to fulfill key request", "error", err)
+        logger.Error("failed to fulfill the key request", "error", err)
         // Note: We can't reject here as we've already generated and stored the key
     }
 }
 ```
 
-## Implementing Sign Request Handler
+## 3. Implement a signature request handler
 
 Next, let's implement the `handleSignRequest` function:
 
 ```go
 func handleSignRequest(w keychain.SignResponseWriter, req *keychain.SignRequest) {
     logger := slog.Default()
-    logger.Info("received sign request", "id", req.Id, "key_id", req.KeyId)
+    logger.Info("received a signature request", "id", req.Id, "key_id", req.KeyId)
 
     key := store.Get(req.KeyId)
     if key == nil {
         logger.Error("key not found", "id", req.KeyId)
         if err := w.Reject("key not found"); err != nil {
-            logger.Error("failed to reject sign request", "error", err)
+            logger.Error("failed to reject the signature request", "error", err)
         }
         return
     }
@@ -106,20 +112,20 @@ func handleSignRequest(w keychain.SignResponseWriter, req *keychain.SignRequest)
     if err != nil {
         logger.Error("failed to sign", "error", err)
         if rejectErr := w.Reject("failed to sign"); rejectErr != nil {
-            logger.Error("failed to reject sign request", "error", rejectErr)
+            logger.Error("failed to reject the signature request", "error", rejectErr)
         }
         return
     }
 
     if err := w.Fulfil(sig); err != nil {
-        logger.Error("failed to fulfil sign request", "error", err)
+        logger.Error("failed to fulfil the signature request", "error", err)
     }
 }
 ```
 
-## Updated Main Function
+## 4. Update the `main()` function
 
-Update the `main` function to use the new store:
+Update the `main()` function to use the new store:
 
 ```go
 func main() {
@@ -138,7 +144,7 @@ func main() {
 }
 ```
 
-## Running the App
+## 5. Run the app
 
 To run the complete app:
 
@@ -149,9 +155,9 @@ To run the complete app:
    go run main.go
    ```
 
-You should see output indicating that the app has started, is connecting to the Warden Protocol node, and is ready to handle key and sign requests.
+You should see output indicating that the app has started, is connecting to the Warden Protocol node, and is ready to handle key and signature requests.
 
-## Testing
+## 6. Test the app
 
 Let's add some tests to ensure our Keychain service is working correctly. Create a new file named `keychain_test.go` with the following content:
 
