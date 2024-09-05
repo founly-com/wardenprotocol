@@ -10,7 +10,7 @@ This tutorial will guide you through creating a Keychain service using the Warde
 
 ## Prerequisites
 
-Before you start, complete following prerequisites:
+Before you start, complete the following prerequisites:
 
 - [Install Go](https://golang.org/doc/install) 1.23 or later.
 - [Run a local chain](/build-an-app/test/run-a-local-chain) and [create a Keychain](../operate-a-keychain/create-a-keychain).

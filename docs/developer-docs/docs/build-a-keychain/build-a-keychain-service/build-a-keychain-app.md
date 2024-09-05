@@ -10,7 +10,7 @@ In this second part of the tutorial, we'll build upon the basic structure create
 
 ## Prerequisites
 
-Before you start, complete following prerequisites:
+Before you start, complete the following prerequisites:
 
 - [Set up a basic Go app](set-up-a-basic-go-app).
 
