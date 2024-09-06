@@ -18,7 +18,7 @@ To become a **Keychain operator**, you need to create and configure a Keychain e
 
 2. The next steps require your local account name, or **key name**. It's referenced as `my-key-name` in the provided command-line examples.
 
-    You can check the list of available keys by executing this command (while the node is running):
+    You can check the list of available keys by executing this command:
 
     ```bash
     wardend keys list
