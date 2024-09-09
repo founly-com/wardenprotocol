@@ -57,7 +57,7 @@ The following steps show how to register a new Keychain entity on-chain.
     ```bash
     wardend tx warden new-keychain \
       --description 'my-keychain-description' \
-      --keychain-fees "{\"key_req\":[{\"amount\":\"100\",\"denom\":\"uward\"}],\"sig_req\":[{\"amount\":\"1\",\"denom\":\"uward\"}]}" \
+      --keychain-fees "{\"key_req\":[{\"amount\":\"100\",\"denom\":\"award\"}],\"sig_req\":[{\"amount\":\"1\",\"denom\":\"award\"}]}" \
       --from my-key-name \
       --chain-id my-chain-id
     ```
@@ -66,10 +66,12 @@ The following steps show how to register a new Keychain entity on-chain.
 
     - `description` (optional): The Keychain description
     - `keychainFees`(optional):
-         - `key_req`: A fee in uWARD for creating a key pair
-         - `key_req`: A fee in uWARD for signing a transaction
+         - `key_req`: A fee in aWARD for creating a key pair
+         - `key_req`: A fee in aWARD for signing a transaction
     - `from`: Your local account name (key name)
     - `chain-id`: The the ID of the chain you're running
+
+    **Note**: aWARD equals 0.000000000000000001 WARD.
 
 2. Enter your passphrase if needed and confirm the transaction. A new Keychain object will be created on-chain.
 
@@ -126,7 +128,7 @@ To add a Keychain Writer, take these steps:
     ```bash
     wardend tx bank send my-key-name \
       $(wardend keys show -a my-keychain-writer-name) \
-      1000000uward \
+      1000000000000000000award \
       --chain-id my-chain-id
     ```
 
