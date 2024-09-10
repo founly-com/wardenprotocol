@@ -6,7 +6,7 @@ sidebar_position: 2
 
 ## Overview
 
-To become a **Keychain operator**, you need to create and configure a Keychain entity on-chain, as shown in tis guide.
+To become a **Keychain operator**, you need to create and configure a Keychain entity on-chain, as shown in this guide.
 
 ## 1. Run a node
 
