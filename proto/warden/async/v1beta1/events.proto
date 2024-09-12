@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package warden.async.v1beta1;
+
+option go_package = "github.com/warden-protocol/wardenprotocol/warden/x/async/types/v1beta1";
+
+// EventCreateFuture is emitted when a new Future is created.
+message EventCreateFuture {
+  // id of the new Task
+  uint64 id = 1;
+
+  // creator is the address that created the Future
+  string creator = 2;
+
+  // handler is the name of the future handler requested
+  string handler = 3;
+}
+

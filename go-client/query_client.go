@@ -12,6 +12,8 @@ import (
 type QueryClient struct {
 	*AuthQueryClient
 	*WardenQueryClient
+	*AsyncQueryClient
+	*CometQueryClient
 
 	conn *grpc.ClientConn
 }
@@ -30,6 +32,7 @@ func NewQueryClient(url string, insecure bool) (*QueryClient, error) {
 		creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: false})
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	}
+
 	grpcConn, err := grpc.NewClient(url, opts...)
 	if err != nil {
 		return nil, err
@@ -43,6 +46,8 @@ func NewQueryClientWithConn(c *grpc.ClientConn) *QueryClient {
 	return &QueryClient{
 		AuthQueryClient:   NewAuthQueryClient(c),
 		WardenQueryClient: NewWardenQueryClient(c),
+		AsyncQueryClient:  NewAsyncQueryClient(c),
+		CometQueryClient:  NewCometQueryClient(c),
 		conn:              c,
 	}
 }

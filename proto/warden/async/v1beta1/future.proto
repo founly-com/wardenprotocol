@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package warden.async.v1beta1;
+
+option go_package = "github.com/warden-protocol/wardenprotocol/warden/x/async/types/v1beta1";
+
+// Future defines a future that will be executed in the future, asynchronously.
+// One validator will add the result of the Future in the blockchain. Other
+// validators will then be able to vote on the execution of the Future, whether
+// they were able to verify the result or not.
+message Future {
+  // Unique ID of the Future.
+  uint64 id = 1;
+  // Creator of the Future.
+  string creator = 2;
+  // Unique name of the handler to be used to execute the Future.
+  string handler = 3;
+  // Input data to be used by the handler to execute the Future.
+  // The actual format is determined by the handler being used.
+  bytes input = 4;
+}
+
+// FutureResult defines the result of the execution of a Future.
+message FutureResult {
+  // ID of the Future this result is for.
+  uint64 id = 1;
+  // Output of the Future.
+  // The actual format is determined by the handler being used.
+  bytes output = 2;
+  // Address of the validator that submitted the result.
+  bytes submitter = 3;
+}
+
+// FutureVote defines a vote on a Future execution.
+message FutureVote {
+  // ID of the Future this vote is for.
+  uint64 future_id = 1;
+  // Address of the voter.
+  bytes voter = 2;
+  // Vote type.
+  FutureVoteType vote = 3;
+}
+
+enum FutureVoteType {
+  // Unspecified vote type.
+  VOTE_TYPE_UNSPECIFIED = 0;
+  // Vote to approve the result of the Future.
+  VOTE_TYPE_VERIFIED = 1;
+  // Vote to reject the result of the Future.
+  VOTE_TYPE_REJECTED = 2;
+}

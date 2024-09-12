@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package warden.ve.v1beta1;
+
+option go_package = "github.com/warden-protocol/wardenprotocol/warden/x/ve/types/v1beta1";
+
+// VoteExtensions wraps multiple vote extensions in a single message, that can
+// be used as the actual vote extension in ABCI methods.
+message VoteExtensions {
+  repeated bytes extensions = 1;
+}
