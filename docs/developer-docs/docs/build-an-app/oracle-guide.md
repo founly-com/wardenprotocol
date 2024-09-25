@@ -7,4 +7,4 @@ sidebar_position: 3
 Links:
 
 - [Oracle service](/learn/oracle-services)
-- [Skip: Connect](/learn/oracle-services#skip-connect)
+- [Skip: Connect](/learn/oracle-services#skipconnect)
