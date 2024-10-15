@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/warden-protocol/wardenprotocol/prophet/api"
-	"github.com/warden-protocol/wardenprotocol/prophet/internal/futures"
 )
 
 func (s *Server) postAck(w http.ResponseWriter, r *http.Request) {
@@ -15,12 +14,7 @@ func (s *Server) postAck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ids := make([]futures.ID, len(req.IDs))
-	for i, id := range req.IDs {
-		ids[i] = futures.ID(id)
-	}
-
-	if err := s.sink.Ack(ids); err != nil {
+	if err := s.sink.Ack(req.IDs); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

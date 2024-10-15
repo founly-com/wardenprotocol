@@ -4,25 +4,25 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/warden-protocol/wardenprotocol/prophet/internal/futures"
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 )
 
 type FutureResultStorage interface {
-	Take(n int) ([]futures.FutureResult, error)
-	Ack(ids []futures.ID) error
+	Take(n int) ([]types.FutureResult, error)
+	Ack(ids []uint64) error
 }
 
 type FutureResultStorageDebug interface {
-	PendingFutures() ([]futures.FutureResult, error)
+	PendingFutures() ([]types.FutureResult, error)
 }
 
 type VoteStorage interface {
-	Take(n int) ([]futures.Vote, error)
-	Ack(ids []futures.ID) error
+	Take(n int) ([]types.Vote, error)
+	Ack(ids []uint64) error
 }
 
 type VoteStorageDebug interface {
-	PendingVotes() ([]futures.Vote, error)
+	PendingVotes() ([]types.Vote, error)
 }
 
 type Server struct {

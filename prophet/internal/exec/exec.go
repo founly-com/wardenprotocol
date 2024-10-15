@@ -6,13 +6,10 @@ import (
 
 	"github.com/warden-protocol/wardenprotocol/prophet/internal/futures"
 	"github.com/warden-protocol/wardenprotocol/prophet/internal/ingress"
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 )
 
-type FutureResultWriter interface {
-	Add(result futures.FutureResult) error
-}
-
-func Futures(src ingress.FutureSource, sink FutureResultWriter) error {
+func Futures(src ingress.FutureSource, sink types.FutureResultWriter) error {
 	log := slog.With("module", "pipe_future_request")
 
 	reqs, err := ingress.Futures(src)
@@ -42,11 +39,7 @@ func Futures(src ingress.FutureSource, sink FutureResultWriter) error {
 	return nil
 }
 
-type VoteWriter interface {
-	Add(result futures.Vote) error
-}
-
-func Votes(src ingress.FutureResultSource, sink VoteWriter) error {
+func Votes(src ingress.FutureResultSource, sink types.VoteWriter) error {
 	log := slog.With("module", "pipe_verify_proposal")
 
 	reqs, err := ingress.FutureResults(src)
@@ -61,7 +54,7 @@ func Votes(src ingress.FutureResultSource, sink VoteWriter) error {
 
 			plog.Debug("verifying proposal")
 			err := futures.Verify(context.TODO(), proposal)
-			if err := sink.Add(futures.Vote{
+			if err := sink.Add(types.Vote{
 				ID:  proposal.ID,
 				Err: err,
 			}); err != nil {
@@ -85,16 +78,16 @@ func mapchan[A, B any](reqs <-chan A, fn func(A) B) <-chan B {
 	return futures
 }
 
-func mapFuture(req ingress.Future) futures.Future {
-	return futures.Future{
-		ID:      futures.ID(req.ID),
+func mapFuture(req types.Future) types.Future {
+	return types.Future{
+		ID:      req.ID,
 		Handler: req.Handler,
 		Input:   req.Input,
 	}
 }
 
-func mapFutureResult(req ingress.FutureResult) futures.FutureResult {
-	return futures.FutureResult{
+func mapFutureResult(req types.FutureResult) types.FutureResult {
+	return types.FutureResult{
 		Future: mapFuture(req.Future),
 		Output: req.Output,
 	}

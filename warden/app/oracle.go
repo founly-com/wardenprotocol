@@ -40,6 +40,9 @@ import (
 	wardenve "github.com/warden-protocol/wardenprotocol/warden/x/ve/types/v1beta1"
 )
 
+func (app *App) initializeProphet() {
+}
+
 func (app *App) initializeOracle(appOpts types.AppOptions) {
 	// Read general config from app-opts, and construct oracle service.
 	cfg, err := oracleconfig.ReadConfigFromAppOpts(appOpts)

@@ -18,10 +18,12 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	abci "github.com/cometbft/cometbft/abci/types"
+	pvm "github.com/cometbft/cometbft/privval"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -91,6 +93,9 @@ import (
 	oracleclient "github.com/skip-mev/slinky/service/clients/oracle"
 	marketmapkeeper "github.com/skip-mev/slinky/x/marketmap/keeper"
 	oraclekeeper "github.com/skip-mev/slinky/x/oracle/keeper"
+
+	"github.com/warden-protocol/wardenprotocol/prophet"
+	prophettypes "github.com/warden-protocol/wardenprotocol/prophet/types"
 )
 
 const (
@@ -157,9 +162,11 @@ type App struct {
 	ScopedWasmKeeper capabilitykeeper.ScopedKeeper
 	ContractKeeper   *wasmkeeper.PermissionedKeeper
 
-	WardenKeeper wardenmodulekeeper.Keeper
-	ActKeeper    actmodulekeeper.Keeper
-	AsyncKeeper  asyncmodulekeeper.Keeper
+	WardenKeeper    wardenmodulekeeper.Keeper
+	ActKeeper       actmodulekeeper.Keeper
+	AsyncKeeper     asyncmodulekeeper.Keeper
+	FuturesSink     prophettypes.FutureResultWriter
+	FutureVotesSink prophettypes.VoteWriter
 
 	// Slinky
 	OracleKeeper    *oraclekeeper.Keeper
@@ -245,6 +252,8 @@ func New(
 	wasmOpts []wasmkeeper.Option,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) (*App, error) {
+	valConsAddr := getValidatorAddress(appOpts)
+
 	var (
 		app        = &App{}
 		appBuilder *runtime.AppBuilder
@@ -267,6 +276,9 @@ func New(
 				app.GetFeemarketKeeper,
 				// Supply the logger
 				logger,
+				// Supply this node validator address
+				valConsAddr,
+
 				func() ast.Expander {
 					// I don't know if a lazy function is the best way to do this.
 					// x/act wants to access this ExpanderManager, but the
@@ -347,6 +359,8 @@ func New(
 		&app.WardenKeeper,
 		&app.ActKeeper,
 		&app.AsyncKeeper,
+		&app.FuturesSink,
+		&app.FutureVotesSink,
 		&app.MarketMapKeeper,
 		&app.OracleKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
@@ -486,6 +500,9 @@ func New(
 			},
 		}))
 	}
+
+	prophet.RunFutureLoop(app.AsyncKeeper.FuturesSource, app.FuturesSink)
+	prophet.RunFutureVotesLoop(app.AsyncKeeper.ResultsSource, app.FutureVotesSink)
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, err
@@ -668,4 +685,12 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmtypes.Wa
 
 	// Set the AnteHandler for the app
 	app.SetAnteHandler(anteHandler)
+}
+
+func getValidatorAddress(appOpts servertypes.AppOptions) sdk.ConsAddress {
+	root := appOpts.Get(flags.FlagHome).(string)
+	keyfile := filepath.Join(root, appOpts.Get("priv_validator_key_file").(string))
+	statefile := filepath.Join(root, appOpts.Get("priv_validator_state_file").(string))
+	privValidator := pvm.LoadFilePV(keyfile, statefile)
+	return (sdk.ConsAddress)(privValidator.GetAddress())
 }

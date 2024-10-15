@@ -186,6 +186,8 @@ type ModuleInputs struct {
 
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper
+
+	SelfAddress sdk.ConsAddress `optional:"true"`
 }
 
 type ModuleOutputs struct {
@@ -207,6 +209,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.StoreService,
 		in.Logger,
 		authority.String(),
+		in.SelfAddress,
 	)
 	m := NewAppModule(
 		in.Cdc,

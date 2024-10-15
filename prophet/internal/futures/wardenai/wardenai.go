@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/warden-protocol/wardenprotocol/prophet/internal/futures"
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 )
 
 func init() {
@@ -16,7 +17,7 @@ func init() {
 type Future struct {
 }
 
-func (s Future) Execute(ctx context.Context, input futures.Input) (futures.Output, error) {
+func (s Future) Execute(ctx context.Context, input types.Input) (types.Output, error) {
 	res, err := http.Post("http://localhost:9001/job/solve", "application/json", bytes.NewReader(input))
 	if err != nil {
 		return nil, err
@@ -29,7 +30,7 @@ func (s Future) Execute(ctx context.Context, input futures.Input) (futures.Outpu
 	return response, nil
 }
 
-func (s Future) Verify(ctx context.Context, input futures.Input, output futures.Output) error {
+func (s Future) Verify(ctx context.Context, input types.Input, output types.Output) error {
 	// todo: verify output
 	return nil
 }

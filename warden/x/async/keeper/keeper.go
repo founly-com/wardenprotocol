@@ -26,6 +26,9 @@ type (
 
 		futures *FutureKeeper
 		votes   collections.Map[collections.Pair[uint64, []byte], int32]
+
+		FuturesSource keeperFutureSource
+		ResultsSource keeperResultsSource
 	}
 )
 
@@ -42,6 +45,7 @@ func NewKeeper(
 	storeService store.KVStoreService,
 	logger log.Logger,
 	authority string,
+	selfValAddr sdk.ConsAddress,
 ) Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
@@ -72,6 +76,9 @@ func NewKeeper(
 
 		futures: futures,
 		votes:   votes,
+
+		FuturesSource: NewFuturesSource(),
+		ResultsSource: NewResultsSource(selfValAddr),
 	}
 }
 

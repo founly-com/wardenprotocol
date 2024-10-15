@@ -5,18 +5,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/warden-protocol/wardenprotocol/prophet/internal/futures"
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 )
 
 type FutureResultMemorySink struct {
 	mu      sync.Mutex
 	log     *slog.Logger
-	results []futures.FutureResult
-	pending map[futures.ID]PendingItem
+	results []types.FutureResult
+	pending map[uint64]PendingItem
 }
 
 type PendingItem struct {
-	FutureResult futures.FutureResult
+	FutureResult types.FutureResult
 	Timeout      time.Time
 }
 
@@ -26,11 +26,11 @@ func NewMemorySink() *FutureResultMemorySink {
 	}()
 	return &FutureResultMemorySink{
 		log:     slog.With("module", "egress", "sink", "memory"),
-		pending: make(map[futures.ID]PendingItem),
+		pending: make(map[uint64]PendingItem),
 	}
 }
 
-func (s *FutureResultMemorySink) Add(result futures.FutureResult) error {
+func (s *FutureResultMemorySink) Add(result types.FutureResult) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.results = append(s.results, result)
@@ -38,7 +38,7 @@ func (s *FutureResultMemorySink) Add(result futures.FutureResult) error {
 	return nil
 }
 
-func (s *FutureResultMemorySink) Take(n int) ([]futures.FutureResult, error) {
+func (s *FutureResultMemorySink) Take(n int) ([]types.FutureResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if len(s.results) < n {
@@ -53,7 +53,7 @@ func (s *FutureResultMemorySink) Take(n int) ([]futures.FutureResult, error) {
 	return results, nil
 }
 
-func (s *FutureResultMemorySink) Ack(ids []futures.ID) error {
+func (s *FutureResultMemorySink) Ack(ids []uint64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for _, id := range ids {
@@ -63,7 +63,7 @@ func (s *FutureResultMemorySink) Ack(ids []futures.ID) error {
 	return nil
 }
 
-func (s *FutureResultMemorySink) addPending(items []futures.FutureResult, timeout time.Duration) {
+func (s *FutureResultMemorySink) addPending(items []types.FutureResult, timeout time.Duration) {
 	for _, item := range items {
 		s.log.Debug("moving to pending", "task", item.Future.ID)
 		s.pending[item.Future.ID] = PendingItem{
@@ -73,10 +73,10 @@ func (s *FutureResultMemorySink) addPending(items []futures.FutureResult, timeou
 	}
 }
 
-func (s *FutureResultMemorySink) PendingTasks() ([]futures.FutureResult, error) {
+func (s *FutureResultMemorySink) PendingTasks() ([]types.FutureResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	res := make([]futures.FutureResult, 0, len(s.pending))
+	res := make([]types.FutureResult, 0, len(s.pending))
 	for _, item := range s.pending {
 		res = append(res, item.FutureResult)
 	}

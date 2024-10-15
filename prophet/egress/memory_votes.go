@@ -5,18 +5,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/warden-protocol/wardenprotocol/prophet/internal/futures"
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 )
 
 type VoteMemorySink struct {
 	mu      sync.Mutex
 	log     *slog.Logger
-	votes   []futures.Vote
-	pending map[futures.ID]PendingVote
+	votes   []types.Vote
+	pending map[uint64]PendingVote
 }
 
 type PendingVote struct {
-	ProposalVote futures.Vote
+	ProposalVote types.Vote
 	Timeout      time.Time
 }
 
@@ -26,11 +26,11 @@ func NewVoteMemorySink() *VoteMemorySink {
 	}()
 	return &VoteMemorySink{
 		log:     slog.With("module", "egress", "sink", "vote_memory"),
-		pending: make(map[futures.ID]PendingVote),
+		pending: make(map[uint64]PendingVote),
 	}
 }
 
-func (s *VoteMemorySink) Add(result futures.Vote) error {
+func (s *VoteMemorySink) Add(result types.Vote) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.votes = append(s.votes, result)
@@ -38,7 +38,7 @@ func (s *VoteMemorySink) Add(result futures.Vote) error {
 	return nil
 }
 
-func (s *VoteMemorySink) Take(n int) ([]futures.Vote, error) {
+func (s *VoteMemorySink) Take(n int) ([]types.Vote, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if len(s.votes) < n {
@@ -53,7 +53,7 @@ func (s *VoteMemorySink) Take(n int) ([]futures.Vote, error) {
 	return votes, nil
 }
 
-func (s *VoteMemorySink) Ack(ids []futures.ID) error {
+func (s *VoteMemorySink) Ack(ids []uint64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for _, id := range ids {
@@ -63,7 +63,7 @@ func (s *VoteMemorySink) Ack(ids []futures.ID) error {
 	return nil
 }
 
-func (s *VoteMemorySink) addPending(items []futures.Vote, timeout time.Duration) {
+func (s *VoteMemorySink) addPending(items []types.Vote, timeout time.Duration) {
 	for _, item := range items {
 		s.log.Debug("moving to pending", "task", item.ID)
 		s.pending[item.ID] = PendingVote{
@@ -73,10 +73,10 @@ func (s *VoteMemorySink) addPending(items []futures.Vote, timeout time.Duration)
 	}
 }
 
-func (s *VoteMemorySink) PendingVotes() ([]futures.Vote, error) {
+func (s *VoteMemorySink) PendingVotes() ([]types.Vote, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	res := make([]futures.Vote, 0, len(s.pending))
+	res := make([]types.Vote, 0, len(s.pending))
 	for _, item := range s.pending {
 		res = append(res, item.ProposalVote)
 	}

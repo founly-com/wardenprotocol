@@ -5,41 +5,20 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 )
-
-type ID uint64
-
-type (
-	Input  []byte
-	Output []byte
-)
-
-type Future struct {
-	ID      ID
-	Handler string
-	Input   Input
-}
-
-type FutureResult struct {
-	Future
-	Output Output
-}
-
-type Vote struct {
-	ID  ID
-	Err error
-}
 
 type FutureHandler interface {
-	Execute(ctx context.Context, input Input) (Output, error)
+	Execute(ctx context.Context, input types.Input) (types.Output, error)
 
-	Verify(ctx context.Context, input Input, output Output) error
+	Verify(ctx context.Context, input types.Input, output types.Output) error
 }
 
-func Run(ctx context.Context, f Future) (FutureResult, error) {
+func Run(ctx context.Context, f types.Future) (types.FutureResult, error) {
 	s := Get(f.Handler)
 	if s == nil {
-		return FutureResult{}, fmt.Errorf("unknown future: %s", f.Handler)
+		return types.FutureResult{}, fmt.Errorf("unknown future: %s", f.Handler)
 	}
 
 	log := slog.With("module", "futures", "mode", "run", "future", f.Handler)
@@ -47,17 +26,17 @@ func Run(ctx context.Context, f Future) (FutureResult, error) {
 	start := time.Now()
 	output, err := s.Execute(ctx, f.Input)
 	if err != nil {
-		return FutureResult{}, fmt.Errorf("executing future: %w", err)
+		return types.FutureResult{}, fmt.Errorf("executing future: %w", err)
 	}
 	log.Debug("done executing", "future", f.ID, "took", time.Since(start))
 
-	return FutureResult{
+	return types.FutureResult{
 		Future: f,
 		Output: output,
 	}, nil
 }
 
-func Verify(ctx context.Context, f FutureResult) error {
+func Verify(ctx context.Context, f types.FutureResult) error {
 	s := Get(f.Handler)
 	if s == nil {
 		return fmt.Errorf("unknown future: %s", f.Handler)

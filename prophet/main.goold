@@ -14,7 +14,7 @@ import (
 	"github.com/warden-protocol/wardenprotocol/prophet/internal/egress"
 	"github.com/warden-protocol/wardenprotocol/prophet/internal/exec"
 	"github.com/warden-protocol/wardenprotocol/prophet/internal/http"
-	"github.com/warden-protocol/wardenprotocol/prophet/internal/ingress"
+	"github.com/warden-protocol/wardenprotocol/prophet/types"
 
 	_ "github.com/warden-protocol/wardenprotocol/prophet/internal/futures/echo"
 	_ "github.com/warden-protocol/wardenprotocol/prophet/internal/futures/wardenai"
@@ -64,13 +64,13 @@ func main() {
 
 type simpleFuturesSource struct{}
 
-func (f simpleFuturesSource) Fetch() <-chan ingress.Future {
+func (f simpleFuturesSource) Fetch() <-chan types.Future {
 	c, err := client.NewQueryClient(wardenGrpc, true)
 	if err != nil {
 		panic(err)
 	}
 
-	ch := make(chan ingress.Future)
+	ch := make(chan types.Future)
 	go func() {
 		for {
 			futures, err := c.PendingFutures(context.TODO(), &client.PageRequest{
@@ -83,7 +83,7 @@ func (f simpleFuturesSource) Fetch() <-chan ingress.Future {
 			}
 
 			for _, f := range futures {
-				ch <- ingress.Future{
+				ch <- types.Future{
 					ID:      f.Id,
 					Handler: f.Handler,
 					Input:   f.Input,
@@ -100,13 +100,13 @@ type simpleProposalSource struct {
 	ValidatorAddress string
 }
 
-func (f simpleProposalSource) Fetch() <-chan ingress.FutureResult {
+func (f simpleProposalSource) Fetch() <-chan types.FutureResult {
 	c, err := client.NewQueryClient(wardenGrpc, true)
 	if err != nil {
 		panic(err)
 	}
 
-	ch := make(chan ingress.FutureResult)
+	ch := make(chan types.FutureResult)
 	go func() {
 		for {
 			futures, err := c.FuturesPendingVote(context.TODO(), f.ValidatorAddress, &client.PageRequest{
@@ -119,8 +119,8 @@ func (f simpleProposalSource) Fetch() <-chan ingress.FutureResult {
 			}
 
 			for _, f := range futures {
-				ch <- ingress.FutureResult{
-					Future: ingress.Future{
+				ch <- types.FutureResult{
+					Future: types.Future{
 						ID:      f.Future.Id,
 						Handler: f.Future.Handler,
 						Input:   f.Future.Input,

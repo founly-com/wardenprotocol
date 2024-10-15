@@ -1,18 +1,12 @@
 package ingress
 
-type Future struct {
-	ID      uint64
-	Handler string
-	Input   []byte
-}
-
-func (r Future) GetID() uint64 { return r.ID }
+import "github.com/warden-protocol/wardenprotocol/prophet/types"
 
 type FutureSource interface {
-	Fetch() <-chan Future
+	Fetch() <-chan types.Future
 }
 
-func Futures(s FutureSource) (<-chan Future, error) {
+func Futures(s FutureSource) (<-chan types.Future, error) {
 	reqs, err := dedup(s.Fetch())
 	if err != nil {
 		return nil, err
@@ -21,18 +15,11 @@ func Futures(s FutureSource) (<-chan Future, error) {
 	return reqs, nil
 }
 
-type FutureResult struct {
-	Future
-	Output []byte
-}
-
-func (r FutureResult) GetID() uint64 { return r.ID }
-
 type FutureResultSource interface {
-	Fetch() <-chan FutureResult
+	Fetch() <-chan types.FutureResult
 }
 
-func FutureResults(s FutureResultSource) (<-chan FutureResult, error) {
+func FutureResults(s FutureResultSource) (<-chan types.FutureResult, error) {
 	reqs, err := dedup(s.Fetch())
 	if err != nil {
 		return nil, err
