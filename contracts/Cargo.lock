@@ -625,6 +625,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "credmatch"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "assert_matches",
+ "bindings",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus",
+ "cw2",
+ "derivative",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "crunchy"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
